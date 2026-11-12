@@ -23,7 +23,7 @@ export function Toasts({ toasts }) {
         const [icon, color] = tones[t.tone] ?? tones.info
         return (
           <div key={t.id} className="pointer-events-auto flex max-w-md items-start gap-2.5 rounded-xl bg-stone-900 px-4 py-3 text-sm text-white shadow-xl">
-            <Icon name={icon} size={18} className={`mt-px ${color}`} />
+            <Icon name={icon} size={20} className={`mt-px ${color}`} />
             <p>{t.text}</p>
           </div>
         )

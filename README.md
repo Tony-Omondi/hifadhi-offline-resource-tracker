@@ -262,7 +262,7 @@ backend/
     tests/           pytest suites
 frontend/
   src/lib/           idb.js · queue.js (FIFO) · store.js (record map) · merge.js · sync.js (engine)
-  src/components/    UI (React + Tailwind, Icons8 icons)
+  src/components/    UI (React + Tailwind, Icons8 icons and illustrations)
   src/hooks/         useTracker: state, auto-sync, backoff
   public/sw.js       service worker (offline app shell)
   e2e/               real-browser end-to-end test
@@ -295,6 +295,7 @@ React 19 · Vite 8 · Tailwind CSS 4 · IndexedDB · Service Worker · Django 5.
 | Playwright | Apache-2.0 |
 | Inter typeface (`@fontsource-variable/inter`) | SIL Open Font License 1.1 |
 | Icons (iOS outline set) | [Icons8](https://icons8.com) licence. Free use requires the link attribution, shown in the app footer. |
+| Empty-state illustrations (Ouch! "Fogg" style) | [Icons8](https://icons8.com/illustrations), marked free to redistribute. Credited in the app footer. |
 
 No sponsor APIs or external datasets are used. The sample data is fictional.
 

@@ -1,4 +1,6 @@
 import { Icon } from './Icon'
+import emptyStockArt from '../assets/illustrations/empty-stock.svg'
+import noResultsArt from '../assets/illustrations/no-results.svg'
 import { CATEGORIES, expiryStatus, formatDate, stockStatus } from '../lib/format'
 
 function Badge({ tone, children }) {
@@ -22,26 +24,24 @@ function ItemRow({ item, onAdjust, onQuick, onEdit, onDelete }) {
         </span>
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-1.5">
-            <p className="truncate font-medium text-stone-900">{item.name}</p>
+            <p className="truncate font-medium text-stone-900" title={item.name}>{item.name}</p>
             {stock === 'low' && <Badge tone="amber">Low stock</Badge>}
             {stock === 'negative' && <Badge tone="rose">Negative: recount</Badge>}
             {expiry?.kind === 'expired' && <Badge tone="rose">Expired</Badge>}
             {expiry?.kind === 'soon' && <Badge tone="amber">Expires in {expiry.days} d</Badge>}
             {item._pending && (
-              <Badge tone="sky">
-                <Icon name="clock" size={11} /> Not synced
-              </Badge>
+              <Badge tone="sky">Not synced</Badge>
             )}
           </div>
           <p className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-stone-500">
             {item.location && (
               <span className="inline-flex items-center gap-1">
-                <Icon name="marker" size={12} /> {item.location}
+                <Icon name="marker" size={16} /> {item.location}
               </span>
             )}
             {item.expiry_date && (
               <span className="inline-flex items-center gap-1">
-                <Icon name="calendar" size={12} /> {formatDate(item.expiry_date)}
+                <Icon name="calendar" size={16} /> {formatDate(item.expiry_date)}
               </span>
             )}
             {item.min_stock > 0 && <span>Reorder at {item.min_stock}</span>}
@@ -52,7 +52,7 @@ function ItemRow({ item, onAdjust, onQuick, onEdit, onDelete }) {
       <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">
         <div className="flex items-center rounded-xl bg-stone-100 p-1 ring-1 ring-stone-200/70">
           <button type="button" className="icon-btn size-8 hover:bg-white" onClick={() => onQuick(item, -1)} aria-label={`Dispense one ${item.name}`}>
-            <Icon name="minus" size={14} />
+            <Icon name="minus" size={16} />
           </button>
           <button
             type="button"
@@ -61,18 +61,18 @@ function ItemRow({ item, onAdjust, onQuick, onEdit, onDelete }) {
             aria-label={`${item.quantity} ${item.unit}. Receive or dispense ${item.name}`}
           >
             <span className="block text-base font-semibold leading-tight tabular-nums">{item.quantity.toLocaleString()}</span>
-            <span className="block text-[11px] leading-tight text-stone-500">{item.unit}</span>
+            <span className="block text-[11px] leading-tight text-stone-600">{item.unit}</span>
           </button>
           <button type="button" className="icon-btn size-8 hover:bg-white" onClick={() => onQuick(item, 1)} aria-label={`Receive one ${item.name}`}>
-            <Icon name="plus" size={14} />
+            <Icon name="plus" size={16} />
           </button>
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center gap-1">
           <button type="button" className="icon-btn" onClick={() => onEdit(item)} aria-label={`Edit ${item.name}`}>
-            <Icon name="edit" size={17} />
+            <Icon name="edit" size={20} />
           </button>
           <button type="button" className="icon-btn hover:bg-rose-50 hover:text-rose-700" onClick={() => onDelete(item)} aria-label={`Delete ${item.name}`}>
-            <Icon name="trash" size={17} />
+            <Icon name="trash" size={20} />
           </button>
         </div>
       </div>
@@ -80,22 +80,32 @@ function ItemRow({ item, onAdjust, onQuick, onEdit, onDelete }) {
   )
 }
 
-export function ItemList({ items, totalCount, onAdd, ...handlers }) {
+export function ItemList({ items, totalCount, onAdd, onClearFilters, ...handlers }) {
   if (items.length === 0) {
+    const firstRun = totalCount === 0
     return (
-      <div className="flex flex-col items-center px-6 py-16 text-center">
-        <span className="flex size-14 items-center justify-center rounded-2xl bg-stone-100 text-stone-400">
-          <Icon name="box" size={28} />
-        </span>
-        <p className="mt-4 font-medium text-stone-900">{totalCount === 0 ? 'No stock recorded yet' : 'Nothing matches'}</p>
-        <p className="mt-1 max-w-xs text-sm text-stone-500">
-          {totalCount === 0
-            ? 'Add your first item. It is saved on this device right away, even with no connection.'
-            : 'Try another search or category.'}
+      <div className="flex flex-col items-center px-6 py-14 text-center">
+        {/* Icons8 Ouch! illustrations (Fogg style, free to redistribute); decorative, so alt="" */}
+        <div className="flex h-[120px] items-end justify-center">
+          {firstRun ? (
+            <img src={emptyStockArt} alt="" width={176} height={104} />
+          ) : (
+            <img src={noResultsArt} alt="" width={104} height={104} style={{ transform: 'translateY(16px)' }} />
+          )}
+        </div>
+        <h3 className="mt-6 font-semibold text-stone-900">{firstRun ? 'No stock recorded yet' : 'No items match'}</h3>
+        <p className="mt-1 max-w-sm text-sm text-stone-600">
+          {firstRun
+            ? 'Add your first item. It is saved on this device straight away, even with no connection.'
+            : 'Nothing matches this search or filter. Clear them to see every item again.'}
         </p>
-        {totalCount === 0 && (
+        {firstRun ? (
           <button type="button" className="btn-primary mt-5" onClick={onAdd}>
             <Icon name="plus" size={16} /> Add item
+          </button>
+        ) : (
+          <button type="button" className="btn-secondary mt-5" onClick={onClearFilters}>
+            Clear search and filters
           </button>
         )}
       </div>

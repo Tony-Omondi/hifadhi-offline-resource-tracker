@@ -44,7 +44,7 @@ React 19 + Vite + Tailwind CSS 4 with IndexedDB and a service worker (frontend) 
 **TODO: review and adjust to what actually happened.**
 
 - **Tool:** Claude Code (Anthropic, model Claude Opus 5.5), used as a coding assistant in the terminal.
-- **What it did:** generated most of the code: the Django sync backend, the conflict-resolution module, the IndexedDB queue and sync engine, the React UI, the service worker, the test suites (backend, frontend, end-to-end), the sample data and the first draft of this documentation. It also picked the icon set from Icons8 through Icons8's MCP tool.
+- **What it did:** generated most of the code: the Django sync backend, the conflict-resolution module, the IndexedDB queue and sync engine, the React UI, the service worker, the test suites (backend, frontend, end-to-end), the sample data and the first draft of this documentation. It also chose the icons and the two empty-state illustrations from Icons8 through Icons8's MCP tools and design-review skills, and ran a contrast and accessibility pass.
 - **Roughly how much:** an estimated **TODO %** of the code was AI-generated.
 - **What the team did:** **TODO.** For example: set the requirements and build order, chose the stack, reviewed and ran the code, tested it on phones, wrote or edited the SDG statement, recorded the demo, deployed to PrimeCloud.
 - **Pretrained models or external AI APIs in the product itself:** none. The app makes no AI calls.

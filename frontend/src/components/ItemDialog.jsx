@@ -61,7 +61,7 @@ function ItemForm({ item, onClose, onSave }) {
     <form onSubmit={submit} className="space-y-4" noValidate>
       <div>
         <label className="label" htmlFor="f-name">Name</label>
-        <input id="f-name" className="field" value={form.name} onChange={set('name')} placeholder="e.g. Amoxicillin 250mg" autoFocus required />
+        <input id="f-name" className="field" value={form.name} onChange={set('name')} placeholder="e.g. Amoxicillin 250mg" autoFocus required aria-invalid={!!error} aria-describedby={error ? 'item-error' : undefined} />
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
@@ -97,7 +97,7 @@ function ItemForm({ item, onClose, onSave }) {
       </div>
       {!item && (
         <div>
-          <label className="label" htmlFor="f-exp">Expiry date <span className="font-normal text-stone-400">(optional)</span></label>
+          <label className="label" htmlFor="f-exp">Expiry date <span className="font-normal text-stone-500">(optional)</span></label>
           <input id="f-exp" type="date" className="field" value={form.expiry_date} onChange={set('expiry_date')} />
         </div>
       )}
@@ -110,7 +110,7 @@ function ItemForm({ item, onClose, onSave }) {
         <textarea id="f-notes" rows={2} className="field h-auto py-2" value={form.notes} onChange={set('notes')} />
       </div>
       {item && <p className="text-xs text-stone-500">To change the quantity, use Receive / Dispense so movements from different devices add up.</p>}
-      {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-800" role="alert">{error}</p>}
+      {error && <p id="item-error" className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-800" role="alert">{error}</p>}
       <div className="flex justify-end gap-2 pt-1">
         <button type="button" className="btn-ghost" onClick={onClose}>Cancel</button>
         <button type="submit" className="btn-primary">{item ? 'Save changes' : 'Add item'}</button>

@@ -68,7 +68,7 @@ export default function App() {
           <section className="card overflow-hidden" aria-label="Stock items">
             <div className="flex flex-col gap-3 border-b border-stone-100 p-4 sm:flex-row sm:items-center sm:px-5">
               <div className="relative flex-1">
-                <Icon name="search" size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
+                <Icon name="search" size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-stone-500" />
                 <input
                   type="search"
                   className="field pl-9"
@@ -91,22 +91,38 @@ export default function App() {
                     type="button"
                     aria-pressed={category === key}
                     onClick={() => setCategory(key)}
-                    className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition ${category === key ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}
+                    className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition ${category === key ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-800 hover:bg-stone-200'}`}
                   >
-                    {c.icon && <Icon name={c.icon} size={13} />}
+                    {c.icon && <Icon name={c.icon} size={16} />}
                     {c.label}
-                    <span className={`tabular-nums ${category === key ? 'text-stone-300' : 'text-stone-400'}`}>{count}</span>
+                    <span className={`tabular-nums ${category === key ? 'text-stone-300' : 'text-stone-600'}`}>{count}</span>
                   </button>
                 )
               })}
             </div>
             {!tracker.ready ? (
-              <p className="px-5 py-16 text-center text-sm text-stone-500">Opening local database…</p>
+              <ul className="divide-y divide-stone-100" aria-busy="true" aria-label="Loading items">
+                {[0, 1, 2, 3].map((i) => (
+                  <li key={i} className="flex items-center gap-3 px-4 py-4 sm:px-5">
+                    <span className="size-10 rounded-xl bg-stone-100" />
+                    <span className="flex-1 space-y-2">
+                      <span className="block h-3.5 w-48 max-w-full rounded bg-stone-100" />
+                      <span className="block h-3 w-32 rounded bg-stone-100" />
+                    </span>
+                    <span className="h-12 w-36 rounded-xl bg-stone-100" />
+                  </li>
+                ))}
+              </ul>
             ) : (
               <ItemList
                 items={visible}
                 totalCount={live.length}
                 onAdd={() => setEditing('new')}
+                onClearFilters={() => {
+                  setQuery('')
+                  setCategory('all')
+                  setFilter('all')
+                }}
                 onAdjust={setAdjusting}
                 onQuick={(item, delta) => tracker.adjustQuantity(item.id, delta, delta > 0 ? 'received' : 'dispensed')}
                 onEdit={setEditing}
@@ -121,11 +137,11 @@ export default function App() {
           </aside>
         </div>
 
-        <footer className="flex flex-wrap items-center justify-between gap-2 pb-4 pt-2 text-xs text-stone-500">
+        <footer className="flex flex-wrap items-center justify-between gap-2 pb-4 pt-2 text-xs text-stone-600">
           <p>Built for rural clinics and aid points where the signal comes and goes · SDG 3 &amp; SDG 2</p>
           <p>
-            Icons by{' '}
-            <a className="underline hover:text-stone-800" href="https://icons8.com" target="_blank" rel="noreferrer">
+            Icons and illustrations by{' '}
+            <a className="underline hover:text-stone-900" href="https://icons8.com" target="_blank" rel="noreferrer">
               Icons8
             </a>
           </p>

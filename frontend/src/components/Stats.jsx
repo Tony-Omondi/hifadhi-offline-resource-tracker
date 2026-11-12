@@ -20,7 +20,7 @@ function Stat({ icon, label, value, tone, active, onClick, hint }) {
       </span>
       <span className="min-w-0">
         <span className="block text-2xl font-semibold leading-none tracking-tight tabular-nums">{value}</span>
-        <span className="mt-1 block truncate text-xs font-medium text-stone-500">{label}</span>
+        <span className="mt-1 block text-xs font-medium text-stone-600">{label}</span>
         {hint && <span className="sr-only">{hint}</span>}
       </span>
     </button>
@@ -34,9 +34,9 @@ export function Stats({ items, queueLength, filter, setFilter }) {
   return (
     <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
       <Stat icon="list" label="Items tracked" value={items.length} tone="neutral" active={filter === 'all'} onClick={() => setFilter('all')} />
-      <Stat icon="warning" label="Low or negative stock" value={low} tone="amber" active={filter === 'low'} onClick={() => toggle('low')} hint="Show only these" />
-      <Stat icon="calendar" label="Expired or expiring in 60 days" value={expiring} tone="rose" active={filter === 'expiring'} onClick={() => toggle('expiring')} hint="Show only these" />
-      <Stat icon="clock" label="Changes waiting to sync" value={queueLength} tone="brand" active={filter === 'pending'} onClick={() => toggle('pending')} hint="Show only these" />
+      <Stat icon="warning" label="Low stock" value={low} tone="amber" active={filter === 'low'} onClick={() => toggle('low')} hint="At or below reorder level, or negative. Show only these." />
+      <Stat icon="calendar" label="Expiring soon" value={expiring} tone="rose" active={filter === 'expiring'} onClick={() => toggle('expiring')} hint="Expired or expiring within 60 days. Show only these." />
+      <Stat icon="clock" label="Waiting to sync" value={queueLength} tone="brand" active={filter === 'pending'} onClick={() => toggle('pending')} hint="Changes saved on this device, not yet on the server. Show only those items." />
     </div>
   )
 }

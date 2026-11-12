@@ -18,7 +18,7 @@ const log = (msg) => console.log(`  ✓ ${msg}`)
 
 const serverRecords = async () => (await (await fetch(`${APP_URL}/api/records`)).json()).records
 const serverItem = async (name) => (await serverRecords()).find((r) => r.name === name)
-const waitingCount = (page) => page.locator('button:has-text("Changes waiting to sync") span.text-2xl').innerText()
+const waitingCount = (page) => page.locator('button:has-text("Waiting to sync") span.text-2xl').innerText()
 
 async function waitFor(fn, label, timeout = 15000) {
   const end = Date.now() + timeout

@@ -41,18 +41,18 @@ function AdjustForm({ item, onClose, onSave }) {
             role="radio"
             aria-checked={mode === key}
             onClick={() => setMode(key)}
-            className={`flex h-9 items-center justify-center gap-1.5 rounded-lg text-sm font-medium transition ${mode === key ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500 hover:text-stone-800'}`}
+            className={`flex h-9 items-center justify-center gap-1.5 rounded-lg text-sm font-medium transition ${mode === key ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'}`}
           >
-            <Icon name={cfg.sign > 0 ? 'plus' : 'minus'} size={13} /> {cfg.label}
+            <Icon name={cfg.sign > 0 ? 'plus' : 'minus'} size={16} /> {cfg.label}
           </button>
         ))}
       </div>
       <div>
         <label className="label" htmlFor="adj-amount">Amount ({item.unit})</label>
-        <input id="adj-amount" className="field h-12 text-lg tabular-nums" inputMode="numeric" autoFocus value={amount} onChange={(e) => { setAmount(e.target.value); setError('') }} placeholder="0" />
+        <input id="adj-amount" className="field h-12 text-lg tabular-nums" inputMode="numeric" autoFocus aria-invalid={!!error} aria-describedby={error ? 'adj-error' : undefined} value={amount} onChange={(e) => { setAmount(e.target.value); setError('') }} placeholder="0" />
         <div className="mt-2 flex gap-1.5">
           {[1, 5, 10, 50, 100].map((v) => (
-            <button key={v} type="button" onClick={() => setAmount(String(v))} className="flex-1 rounded-lg bg-stone-100 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-200 tabular-nums">
+            <button key={v} type="button" onClick={() => setAmount(String(v))} className="h-8 flex-1 rounded-lg bg-stone-100 text-xs font-medium text-stone-800 hover:bg-stone-200 tabular-nums">
               {v}
             </button>
           ))}
@@ -64,10 +64,10 @@ function AdjustForm({ item, onClose, onSave }) {
           {after.toLocaleString()} {item.unit}
         </span>
       </p>
-      {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-800" role="alert">{error}</p>}
+      {error && <p id="adj-error" className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-800" role="alert">{error}</p>}
       <div className="flex justify-end gap-2">
         <button type="button" className="btn-ghost" onClick={onClose}>Cancel</button>
-        <button type="submit" className="btn-primary" disabled={!amount}>
+        <button type="submit" className="btn-primary">
           {m.verb} {valid ? n.toLocaleString() : ''}
         </button>
       </div>

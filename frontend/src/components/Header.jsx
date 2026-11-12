@@ -11,7 +11,7 @@ function StatusPill({ online, running, error, pending }) {
   if (running)
     return (
       <span className="inline-flex items-center gap-1.5 rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-800 ring-1 ring-sky-200">
-        <Icon name="sync" size={14} className="animate-spin [animation-duration:1.4s]" /> Syncing
+        <Icon name="sync" size={16} className="animate-spin [animation-duration:1.4s]" /> Syncing
       </span>
     )
   if (error)
@@ -22,7 +22,7 @@ function StatusPill({ online, running, error, pending }) {
     )
   return (
     <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-200">
-      <Icon name={pending ? 'cloud' : 'check'} size={15} /> {pending ? 'Online' : 'All synced'}
+      <Icon name={pending ? 'cloud' : 'check'} size={16} /> {pending ? 'Online' : 'All synced'}
     </span>
   )
 }
@@ -37,12 +37,12 @@ export function Header({ tracker }) {
         </div>
         <div className="min-w-0 flex-1">
           <h1 className="text-base font-semibold leading-tight tracking-tight sm:text-lg">Hifadhi</h1>
-          <p className="truncate text-xs text-stone-500">Clinic & aid-point stock · works without internet</p>
+          <p className="truncate text-xs text-stone-600"><span className="hidden sm:inline">Clinic & aid-point stock · </span>Works without internet</p>
         </div>
         <div className="flex items-center gap-2 sm:gap-3">
           <div className="hidden text-right sm:block">
             <StatusPill online={online} running={sync.running} error={sync.error} pending={queue.length} />
-            <p className="mt-1 text-[11px] text-stone-500">Last sync {timeAgo(lastSync)}</p>
+            <p className="mt-1 text-[11px] text-stone-600">Last sync {timeAgo(lastSync)}</p>
           </div>
           <div className="sm:hidden">
             <StatusPill online={online} running={sync.running} error={sync.error} pending={queue.length} />
@@ -77,7 +77,7 @@ export function OfflineBanner({ tracker }) {
   return (
     <div className={`border-b ${online ? 'border-rose-200 bg-rose-50 text-rose-900' : 'border-amber-200 bg-amber-50 text-amber-950'}`} role="status">
       <div className="mx-auto flex max-w-7xl items-start gap-2.5 px-4 py-2.5 text-sm sm:px-6">
-        <Icon name="cloud-off" size={18} className="mt-0.5" />
+        <Icon name="cloud-off" size={20} className="mt-0.5" />
         <p>{text}</p>
       </div>
     </div>
