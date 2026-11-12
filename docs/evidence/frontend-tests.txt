@@ -1,0 +1,30 @@
+
+ RUN  v5.1.0 /Users/mac/development/offline-resource-tracker/frontend
+
+ ✓ src/lib/queue.test.js > SyncQueue (durable FIFO) > replays ops in exactly the order they were enqueued 12ms
+ ✓ src/lib/queue.test.js > SyncQueue (durable FIFO) > peek does not remove; only ack does, and order holds after partial acks 8ms
+ ✓ src/lib/queue.test.js > SyncQueue (durable FIFO) > survives a reload: a new connection sees the same queue in the same order 2ms
+ ✓ src/lib/queue.test.js > SyncQueue (durable FIFO) > refuses the same op_id twice (client-side op-ID set) 1ms
+ ✓ src/lib/queue.test.js > SyncQueue (durable FIFO) > acking twice or acking unknown ids is harmless 2ms
+ ✓ src/lib/queue.test.js > SyncQueue (durable FIFO) > pendingFor returns one record's ops oldest first 2ms
+ ✓ src/lib/store.test.js > TrackerStore (record map, offline CRUD) > create works offline: record saved locally and op queued together 14ms
+ ✓ src/lib/store.test.js > TrackerStore (record map, offline CRUD) > update queues only the fields that changed; a no-op edit queues nothing 3ms
+ ✓ src/lib/store.test.js > TrackerStore (record map, offline CRUD) > adjust and delete change the local copy immediately 4ms
+ ✓ src/lib/store.test.js > TrackerStore (record map, offline CRUD) > a server copy is rebased under ops still waiting in the queue 8ms
+ ✓ src/lib/store.test.js > TrackerStore (record map, offline CRUD) > an older server copy never overwrites a newer one 2ms
+ ✓ src/lib/sync.test.js > SyncEngine: offline -> online > offline: sync fails, nothing is lost, and the next online sync delivers it all 23ms
+ ✓ src/lib/sync.test.js > SyncEngine: offline -> online > large queues go in batches and the server applies them in FIFO order 66ms
+ ✓ src/lib/sync.test.js > SyncEngine: offline -> online > connection lost after the server applied the batch: retry is deduplicated 3ms
+ ✓ src/lib/sync.test.js > SyncEngine: offline -> online > two offline devices edit the same field: both converge, the loser sees a conflict 12ms
+ ✓ src/lib/sync.test.js > SyncEngine: offline -> online > two devices dispensing at once: both movements count 5ms
+ ✓ src/lib/sync.test.js > SyncEngine: offline -> online > a rejected op leaves the queue and is kept in the failed list 3ms
+ ✓ src/lib/sync.test.js > SyncEngine: offline -> online > sync calls made while one is running share it (no double push) 2ms
+ ✓ src/lib/sync.test.js > httpTransport and backoff > a non-2xx reply is an error, and the failure header is only sent when asked 1ms
+ ✓ src/lib/sync.test.js > httpTransport and backoff > backoff grows and is capped at about a minute 0ms
+ ✓ src/App.test.jsx > renders the shell and opens the local database with no server at all 120ms
+
+ Test Files  4 passed (4)
+      Tests  21 passed (21)
+   Start at  22:46:01
+   Duration  1.77s (environment 82%, tests 6%, import 5%, setup 4%, transform 3%, worker 1%)
+

@@ -1,0 +1,31 @@
+{
+  "version": 2,
+  "icons": {
+    "pack": "ios7",
+    "sizes": [16, 20, 24, 32],
+    "color": "currentColor (PNG used as CSS mask)",
+    "items": {
+      "plus": { "id": "11153", "commonName": "plus-math" },
+      "minus": { "id": "11152", "commonName": "minus-math" },
+      "search": { "id": "132", "commonName": "search" },
+      "sync": { "id": "11680", "commonName": "synchronize" },
+      "cloud": { "id": "2854", "commonName": "cloud" },
+      "cloud-off": { "id": "41591", "commonName": "cloud-cross" },
+      "edit": { "id": "49", "commonName": "edit" },
+      "trash": { "id": "1942", "commonName": "trash" },
+      "warning": { "id": "360", "commonName": "error" },
+      "calendar": { "id": "23", "commonName": "calendar" },
+      "box": { "id": "392", "commonName": "box" },
+      "marker": { "id": "3723", "commonName": "marker" },
+      "merge": { "id": "6556", "commonName": "merge-horizontal" },
+      "pill": { "id": "960", "commonName": "pill" },
+      "doctors-bag": { "id": "9145", "commonName": "doctors-bag" },
+      "flour": { "id": "7229", "commonName": "sack-of-flour" },
+      "water": { "id": "1946", "commonName": "water" },
+      "clock": { "id": "34", "commonName": "clock" },
+      "close": { "id": "6483", "commonName": "multiply" },
+      "check": { "id": "3061", "commonName": "checkmark" },
+      "list": { "id": "774", "commonName": "list" }
+    }
+  }
+}

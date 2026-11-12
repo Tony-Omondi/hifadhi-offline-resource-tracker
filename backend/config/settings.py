@@ -61,6 +61,9 @@ DATABASES = {
         conn_max_age=60,
     )
 }
+if DATABASES["default"]["ENGINE"].endswith("sqlite3"):
+    # Wait for the write lock instead of failing when two sync requests overlap.
+    DATABASES["default"].setdefault("OPTIONS", {})["timeout"] = 20
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LANGUAGE_CODE = "en-us"
@@ -85,7 +88,10 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = env_bool("DJANGO_SECURE_SSL_REDIRECT", False)
 SECURE_REDIRECT_EXEMPT = [r"^health/?$"]  # platform health probes often use plain HTTP
 
-APP_VERSION = os.environ.get("APP_VERSION", "0.1.0")
+APP_VERSION = os.environ.get("APP_VERSION", "1.0.0")
+
+# Lets the demo show "connection lost mid-sync" on demand. Harmless: ops are still applied.
+FAULT_INJECTION_ENABLED = env_bool("FAULT_INJECTION_ENABLED", True)
 
 LOGGING = {
     "version": 1,

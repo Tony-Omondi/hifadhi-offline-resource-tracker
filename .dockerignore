@@ -7,3 +7,5 @@ backend/staticfiles
 .env
 frontend/node_modules
 frontend/dist
+frontend/e2e
+docs
