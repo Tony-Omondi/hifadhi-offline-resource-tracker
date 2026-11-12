@@ -206,7 +206,7 @@ cd frontend && APP_URL=http://localhost:8000 CHROME_PATH="/path/to/chrome" npm r
 | [frontend/e2e/offline-sync.e2e.mjs](frontend/e2e/offline-sync.e2e.mjs) | 7 checks | Real browser: service worker offline reload, offline queue, reconnect, two-device conflict, dropped reply |
 | [scripts/hosted_check.py](scripts/hosted_check.py) | 10 + 4 | Against a live URL: health, sync order, dedup, lost reply, conflict, delete, rejection; then persistence of records and op IDs across a restart or redeploy |
 
-Saved runs and screenshots are in [docs/evidence/](docs/evidence/). GitHub Actions runs the backend and frontend suites on every push ([.github/workflows/ci.yml](.github/workflows/ci.yml)).
+Saved runs and screenshots are in [docs/evidence/](docs/evidence/). A GitHub Actions workflow that runs the backend and frontend suites and boots the Docker image is in [ci/github-actions.yml](ci/github-actions.yml). To switch it on, copy it to `.github/workflows/ci.yml`: GitHub's web editor works, or a login with the `workflow` permission.
 
 ## Sample data
 
