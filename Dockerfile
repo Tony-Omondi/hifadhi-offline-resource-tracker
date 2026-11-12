@@ -28,7 +28,7 @@ WORKDIR /app/backend
 RUN DJANGO_SECRET_KEY=build-only python manage.py collectstatic --noinput
 
 # /app/data is where a persistent disk mounts when no managed database is used.
-RUN useradd --create-home appuser && mkdir -p /app/data && chown -R appuser /app && chmod 775 /app/data
+RUN useradd --create-home appuser && mkdir -p /app/data && chown -R appuser /app && chmod 775 /app/data && chmod 755 /app/backend/start.sh
 USER appuser
 ENV SQLITE_PATH=/app/data/db.sqlite3
 
@@ -36,4 +36,6 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD python -c "import os,urllib.request; urllib.request.urlopen(f'http://127.0.0.1:{os.environ.get(\"PORT\",\"8000\")}/healthz', timeout=4)"
 
-CMD ["./start.sh"]
+# Run through sh so it starts even if the platform drops the file's execute bit;
+# start.sh then execs gunicorn, which becomes PID 1 and receives SIGTERM directly.
+CMD ["sh", "/app/backend/start.sh"]

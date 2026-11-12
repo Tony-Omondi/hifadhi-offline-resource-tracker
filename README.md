@@ -226,7 +226,7 @@ The repository builds into one Docker image. A Node stage builds the React app, 
 |---|---|
 | Repository / branch | `Tony-Omondi/hifadhi-offline-resource-tracker` · `main` · application directory `/` (root) |
 | Build | Detected from the root `Dockerfile` (no separate build command) |
-| Start command | `./start.sh` (the image's default: runs migrations, optionally loads sample data, then `exec gunicorn`) |
+| Start command | `sh /app/backend/start.sh` (the image's default: runs migrations, optionally loads sample data, then `exec gunicorn`). Leave the Console's start command empty. |
 | Listen address / port | `0.0.0.0:$PORT` (read from the `PORT` variable; 8000 if unset). Set the Target Port to the same value. |
 | Health check path | `/healthz` (also `/health`). Returns 200 in milliseconds, or 503 if the database is unreachable. No secrets in the reply. |
 | Shutdown | gunicorn is PID 1, receives SIGTERM and stops within 8 s (PrimeCloud allows 10 s). An op is acknowledged only after its transaction commits. |
