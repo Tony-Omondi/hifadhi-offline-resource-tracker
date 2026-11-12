@@ -14,6 +14,25 @@ if [ -z "$DATABASE_URL" ]; then
   echo "Database: SQLite at ${SQLITE_PATH:-/app/data/db.sqlite3} (must be on a persistent disk)"
 else
   echo "Database: DATABASE_URL (managed database)"
+  # Internal DNS and the database can lag behind container start: wait up to ~30 s.
+  python - <<'PY'
+import os, sys, time
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+import django
+django.setup()
+from django.db import connection
+for attempt in range(1, 16):
+    try:
+        connection.ensure_connection()
+        print(f"Database reachable (attempt {attempt}).")
+        sys.exit(0)
+    except Exception as exc:  # DNS not ready, DB booting, wrong host...
+        print(f"Waiting for database (attempt {attempt}/15): {exc}".splitlines()[0], flush=True)
+        connection.close()
+        time.sleep(2)
+print("FATAL: database still unreachable after ~30 s. Check the host in DATABASE_URL.", file=sys.stderr)
+sys.exit(1)
+PY
 fi
 
 python manage.py migrate --noinput
