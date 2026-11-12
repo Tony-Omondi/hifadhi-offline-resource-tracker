@@ -36,6 +36,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "sync.middleware.HealthCheckMiddleware",  # first: probes skip host checks and redirects
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -86,7 +87,7 @@ REST_FRAMEWORK = {
 # Behind PrimeCloud's HTTPS proxy.
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = env_bool("DJANGO_SECURE_SSL_REDIRECT", False)
-SECURE_REDIRECT_EXEMPT = [r"^health/?$"]  # platform health probes often use plain HTTP
+SECURE_REDIRECT_EXEMPT = [r"^healthz?/?$"]  # platform health probes often use plain HTTP
 
 APP_VERSION = os.environ.get("APP_VERSION", "1.0.0")
 

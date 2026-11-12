@@ -8,11 +8,12 @@ Software Development track · Challenge B: Offline-First Resource Tracker (Inter
 
 | Item | Link |
 |---|---|
-| GitHub repository | **TODO** |
+| GitHub repository | https://github.com/Tony-Omondi/hifadhi-offline-resource-tracker |
 | Live demo (HTTPS) | **TODO** |
-| Health check | **TODO**`/health` |
+| Health check | **TODO**`/healthz` |
+| Deployed commit | **TODO** (short hash shown in PrimeCloud's deployment details) |
 | Demo video (2–3 min) | **TODO** (script: [DEMO_SCRIPT.md](DEMO_SCRIPT.md)) |
-| Test and deploy evidence | [docs/evidence/](evidence/) plus a screenshot of the PrimeCloud dashboard and `curl https://<url>/health` (**TODO** after deploy) |
+| Test and deploy evidence | [docs/evidence/](evidence/), plus after deploy (**TODO**): a PrimeCloud status screenshot with secrets hidden, `docs/evidence/hosted-check.md` and `hosted-check-after-restart.md` from `scripts/hosted_check.py` |
 
 ## Team
 

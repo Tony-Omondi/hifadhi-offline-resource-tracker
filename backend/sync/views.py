@@ -12,9 +12,11 @@ from .services import apply_operation, changes_since, now_ms, serialize
 MAX_OPS_PER_REQUEST = 200
 
 
-@api_view(["GET", "HEAD"])
-def health(request):
-    """Liveness + readiness: 200 when the app and its database answer, 503 otherwise."""
+def health_payload():
+    """(body, status). Process is up; 200 only if the database also answers.
+
+    Cheap on purpose (one `SELECT 1`), no secrets, no host or path details.
+    """
     try:
         with connection.cursor() as cursor:
             cursor.execute("SELECT 1")
@@ -22,14 +24,20 @@ def health(request):
         db_ok = True
     except Exception:  # any DB failure means "not ready"
         db_ok = False
-
     body = {
         "status": "ok" if db_ok else "degraded",
         "database": "ok" if db_ok else "unavailable",
         "version": settings.APP_VERSION,
         "time": datetime.now(timezone.utc).isoformat(),
     }
-    return Response(body, status=200 if db_ok else 503)
+    return body, (200 if db_ok else 503)
+
+
+@api_view(["GET", "HEAD"])
+def health(request):
+    """Normally answered by HealthCheckMiddleware; kept so the URL also resolves."""
+    body, status = health_payload()
+    return Response(body, status=status)
 
 
 def index(request):

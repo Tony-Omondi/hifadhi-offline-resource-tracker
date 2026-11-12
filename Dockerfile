@@ -27,12 +27,13 @@ WORKDIR /app/backend
 # collectstatic needs a key at build time only; the real one comes from the environment at runtime.
 RUN DJANGO_SECRET_KEY=build-only python manage.py collectstatic --noinput
 
-RUN useradd --create-home appuser && mkdir -p /app/data && chown -R appuser /app
+# /app/data is where a persistent disk mounts when no managed database is used.
+RUN useradd --create-home appuser && mkdir -p /app/data && chown -R appuser /app && chmod 775 /app/data
 USER appuser
 ENV SQLITE_PATH=/app/data/db.sqlite3
 
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD python -c "import os,urllib.request; urllib.request.urlopen(f'http://127.0.0.1:{os.environ.get(\"PORT\",\"8000\")}/health', timeout=4)"
+  CMD python -c "import os,urllib.request; urllib.request.urlopen(f'http://127.0.0.1:{os.environ.get(\"PORT\",\"8000\")}/healthz', timeout=4)"
 
-CMD ["sh", "-c", "python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:${PORT} --workers 2 --access-logfile -"]
+CMD ["./start.sh"]

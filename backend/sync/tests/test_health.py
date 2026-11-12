@@ -4,7 +4,7 @@ import pytest
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize("path", ["/health", "/health/"])
+@pytest.mark.parametrize("path", ["/healthz", "/healthz/", "/health", "/health/"])
 def test_health_ok(client, path):
     response = client.get(path)
     assert response.status_code == 200
@@ -17,6 +17,21 @@ def test_health_ok(client, path):
 @pytest.mark.django_db
 def test_health_reports_503_when_database_is_down(client):
     with mock.patch("sync.views.connection.cursor", side_effect=Exception("db down")):
-        response = client.get("/health")
+        response = client.get("/healthz")
     assert response.status_code == 503
     assert response.json()["database"] == "unavailable"
+
+
+@pytest.mark.django_db
+def test_health_probe_with_an_internal_host_header_is_not_rejected(client, settings):
+    settings.ALLOWED_HOSTS = ["hifadhi.example"]
+    probe = client.get("/healthz", HTTP_HOST="10.0.3.17:8000")
+    assert probe.status_code == 200
+    other = client.get("/api/records", HTTP_HOST="10.0.3.17:8000")
+    assert other.status_code == 400  # every other route still enforces ALLOWED_HOSTS
+
+
+@pytest.mark.django_db
+def test_health_probe_is_not_redirected_to_https(client, settings):
+    settings.SECURE_SSL_REDIRECT = True
+    assert client.get("/healthz").status_code == 200

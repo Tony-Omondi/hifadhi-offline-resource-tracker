@@ -3,8 +3,8 @@ from django.urls import path, re_path
 from sync import views
 
 urlpatterns = [
-    # Exact "/health" (what the brief asks for) and "/health/" both work.
-    re_path(r"^health/?$", views.health, name="health"),
+    # /healthz is PrimeCloud's probe path; /health is kept for the original brief.
+    re_path(r"^healthz?/?$", views.health, name="health"),
     path("api/sync", views.sync, name="sync"),
     path("api/records", views.records, name="records"),
     path("api/ops", views.op_log, name="op-log"),

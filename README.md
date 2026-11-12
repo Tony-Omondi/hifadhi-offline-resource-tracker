@@ -8,8 +8,9 @@
 | | |
 |---|---|
 | Live app | `https://<your-primecloud-url>/` *(fill in after deploy)* |
-| Health check | `https://<your-primecloud-url>/health` |
-| Tests | 30 backend (pytest) · 21 frontend (Vitest) · 7 end-to-end checks in a real browser |
+| Health check | `https://<your-primecloud-url>/healthz` |
+| Source | https://github.com/Tony-Omondi/hifadhi-offline-resource-tracker |
+| Tests | 34 backend (pytest) · 21 frontend (Vitest) · 7 end-to-end browser checks · 14 hosted checks (`scripts/hosted_check.py`) |
 
 ![Hifadhi showing a conflict that was resolved automatically](docs/evidence/04-conflict-resolved-last-write-wins.png)
 
@@ -33,14 +34,10 @@ docker build -t hifadhi .
 ```
 
 ```bash
-docker run -d --name hifadhi -p 8000:8000 -e DJANGO_SECRET_KEY=change-me -v hifadhi-data:/app/data hifadhi
+docker run -d --name hifadhi -p 8000:8000 -e DJANGO_SECRET_KEY=change-me -e SEED_SAMPLE_DATA=1 -v hifadhi-data:/app/data hifadhi
 ```
 
-```bash
-docker exec hifadhi python manage.py seed_sample_data
-```
-
-Open http://localhost:8000. Health check: http://localhost:8000/health
+Open http://localhost:8000. Health check: http://localhost:8000/healthz
 
 ### Option B: run from source (needs Python 3.12+ and Node 20+)
 
@@ -88,7 +85,7 @@ flowchart LR
     Apply --> REC[("Record\n+ per-field writer stamps")]
     Apply --> LWW["conflict.py\nper-field LWW"]
     API --> Feed["change feed\nseq > cursor"]
-    Health["/health"]
+    Health["/healthz"]
   end
 ```
 
@@ -140,7 +137,7 @@ Operation types: `create`, `update` (only the changed fields), `adjust` (stock d
 
 | Endpoint | Purpose |
 |---|---|
-| `GET /health` | 200 `{"status":"ok","database":"ok",...}`, or 503 if the database is down |
+| `GET /healthz` (also `/health`) | 200 `{"status":"ok","database":"ok",...}`, or 503 if the database is down |
 | `POST /api/sync` | Push operations and pull changes (see above) |
 | `GET /api/records` | The server's current record map (live records) |
 | `GET /api/ops` | The 50 most recent entries of the server's operation-ID set |
@@ -201,12 +198,13 @@ cd frontend && APP_URL=http://localhost:8000 CHROME_PATH="/path/to/chrome" npm r
 |---|---|---|
 | [backend/sync/tests/test_conflict.py](backend/sync/tests/test_conflict.py) | 7 | Conflict rules on their own: causal vs concurrent, timestamp and device tie-break, different fields merge, same-device edits |
 | [backend/sync/tests/test_sync_api.py](backend/sync/tests/test_sync_api.py) | 20 | FIFO order, change feed and cursor, op-ID dedup, conflicts in both arrival orders, stock deltas, deletes, all failure cases above, malformed requests, idempotent seeding |
-| [backend/sync/tests/test_health.py](backend/sync/tests/test_health.py) | 3 | `/health` and `/health/` return 200; 503 when the database is down |
+| [backend/sync/tests/test_health.py](backend/sync/tests/test_health.py) | 7 | `/healthz` and `/health` return 200; 503 when the database is down; the probe isn't rejected for an internal Host header or redirected to HTTPS |
 | [frontend/src/lib/queue.test.js](frontend/src/lib/queue.test.js) | 6 | FIFO order, peek vs ack, survives reload, duplicate op ID refused, idempotent ack |
 | [frontend/src/lib/store.test.js](frontend/src/lib/store.test.js) | 5 | Offline create/update/adjust/delete, only changed fields sent, rebase of pending ops, records never move backwards |
 | [frontend/src/lib/sync.test.js](frontend/src/lib/sync.test.js) | 9 | Offline then online, batching in FIFO order, dropped reply, two-device conflict, concurrent dispensing, rejection, no overlapping syncs, transport errors, backoff |
 | [frontend/src/App.test.jsx](frontend/src/App.test.jsx) | 1 | App opens with no server at all |
 | [frontend/e2e/offline-sync.e2e.mjs](frontend/e2e/offline-sync.e2e.mjs) | 7 checks | Real browser: service worker offline reload, offline queue, reconnect, two-device conflict, dropped reply |
+| [scripts/hosted_check.py](scripts/hosted_check.py) | 10 + 4 | Against a live URL: health, sync order, dedup, lost reply, conflict, delete, rejection; then persistence of records and op IDs across a restart or redeploy |
 
 Saved runs and screenshots are in [docs/evidence/](docs/evidence/). GitHub Actions runs the backend and frontend suites on every push ([.github/workflows/ci.yml](.github/workflows/ci.yml)).
 
@@ -220,32 +218,65 @@ cd backend && ../.venv/bin/python manage.py seed_sample_data
 
 The seed goes through the normal sync path with fixed op IDs, so running it twice prints `16 applied`, then `16 duplicate`. That's the operation-ID set at work.
 
-## Deploying (PrimeCloud or any Docker host)
+## Deploying to PrimeCloud
 
-The repository builds into one Docker image. A Node stage builds the React app, and the runtime is Python 3.12 + gunicorn. The same image serves the web app, the API and `/health`.
+The repository builds into one Docker image. A Node stage builds the React app, and the runtime is Python 3.12 + gunicorn. The same container serves the web app, the sync API and the health check, so there is one HTTPS URL to submit.
 
 | Setting | Value |
 |---|---|
-| Port | `$PORT` (default 8000) |
-| Health check path | `/health` |
-| Persistent volume | `/app/data` (SQLite database). Or set `DATABASE_URL` for Postgres. |
-| Start command | built in: runs migrations, then gunicorn |
+| Repository / branch | `Tony-Omondi/hifadhi-offline-resource-tracker` · `main` · application directory `/` (root) |
+| Build | Detected from the root `Dockerfile` (no separate build command) |
+| Start command | `./start.sh` (the image's default: runs migrations, optionally loads sample data, then `exec gunicorn`) |
+| Listen address / port | `0.0.0.0:$PORT` (read from the `PORT` variable; 8000 if unset). Set the Target Port to the same value. |
+| Health check path | `/healthz` (also `/health`). Returns 200 in milliseconds, or 503 if the database is unreachable. No secrets in the reply. |
+| Shutdown | gunicorn is PID 1, receives SIGTERM and stops within 8 s (PrimeCloud allows 10 s). An op is acknowledged only after its transaction commits. |
+| Memory | About 105 MiB with 2 workers, measured. Fits the 512 MiB trial. |
 
-Environment variables (see [.env.example](.env.example); never commit real values):
+### Steps (Console route)
 
-| Variable | Required | Example |
+1. In the PrimeCloud Console, open the project and environment the organisers assigned. Create an application from **GitHub**, authorise only this repository, pick branch `main` and root directory `/`. Record the commit that gets deployed.
+2. Set the Target Port to match `$PORT`, and the health check path to `/healthz`.
+3. **Give it storage that survives redeploys** (required for Challenge B; confirm with the Technical Lead which one your team is allocated):
+   - **Managed PostgreSQL (preferred):** bind it with Vault so the URL is never in plain text. For example, `primecloud app bind --app <your-app> --db <your-db> --env DATABASE_URL`. The app reads `DATABASE_URL`, and `psycopg` is already installed.
+   - **Persistent disk:** mount it at `/app/data`. With no `DATABASE_URL`, the app keeps SQLite at `/app/data/db.sqlite3`, and `start.sh` refuses to start if that folder isn't writable.
+4. Set the environment variables below, then deploy and watch the build and runtime logs until the app reports healthy.
+5. Run the hosted checks (next section). Restart or redeploy, then run the after-restart check.
+
+| Variable | Secret? | Value |
 |---|---|---|
-| `DJANGO_SECRET_KEY` | yes | a long random string |
-| `DJANGO_ALLOWED_HOSTS` | yes | `your-app.primecloud.example` |
-| `DJANGO_CSRF_TRUSTED_ORIGINS` | yes | `https://your-app.primecloud.example` |
-| `DJANGO_SECURE_SSL_REDIRECT` | no | `1` to force HTTPS (`/health` is exempt) |
-| `DATABASE_URL` | no | `postgres://user:pass@host:5432/db` |
-| `FAULT_INJECTION_ENABLED` | no | `1` (default) keeps the "drop the reply" demo button working |
+| `DJANGO_SECRET_KEY` | **yes**, via Vault | a long random string, e.g. `python3 -c "import secrets; print(secrets.token_urlsafe(50))"` |
+| `DATABASE_URL` | **yes**, via Vault binding | managed PostgreSQL URL. Leave unset when using a persistent disk instead. |
+| `DJANGO_ALLOWED_HOSTS` | no | the hostname PrimeCloud assigns, e.g. `hifadhi-xxxx.<primecloud-domain>` |
+| `DJANGO_CSRF_TRUSTED_ORIGINS` | no | the same host with `https://` |
+| `DJANGO_SECURE_SSL_REDIRECT` | no | `1` (health checks are exempt) |
+| `SEED_SAMPLE_DATA` | no | `1` loads the 16 sample items. It's safe to leave on, because reloading is deduplicated by op ID. |
+| `WEB_CONCURRENCY` | no | `2` gunicorn workers (default) |
+| `FAULT_INJECTION_ENABLED` | no | `1` (default) keeps the "drop the reply" demo button working during judging |
 
-After the first deploy, load the sample data once:
+The health check is answered before Django's host check, so the platform's probe works even when it calls the container by an internal address. Every other route still enforces `DJANGO_ALLOWED_HOSTS`.
+
+### Verifying the hosted app
 
 ```bash
-python manage.py seed_sample_data
+python3 scripts/hosted_check.py https://<your-app-url> --save hosted-state.json --report docs/evidence/hosted-check.md
+```
+
+This checks `/healthz` and the app shell, ordered sync, op-ID dedup, a lost reply followed by a retry, two-device conflict resolution, deletes and invalid ops, all against the live server. Then restart or redeploy in the console and run:
+
+```bash
+python3 scripts/hosted_check.py https://<your-app-url> --after-restart hosted-state.json --report docs/evidence/hosted-check-after-restart.md
+```
+
+This proves that the records **and the operation-ID set** survived: every old operation comes back as `duplicate`. Then do the two-browser walkthrough from "Try the offline flow" on the live URL.
+
+The same checks pass locally against the production image, with SQLite on a mounted volume and with PostgreSQL 16: 10/10 before and 4/4 after recreating the container. See [docs/evidence/hosted-check-postgres.md](docs/evidence/hosted-check-postgres.md) and [hosted-check-postgres-after-redeploy.md](docs/evidence/hosted-check-postgres-after-redeploy.md).
+
+**Before judging:** trial apps sleep after 15 minutes idle. Open the URL and `/healthz` a few minutes before your slot.
+
+### Any other Docker host
+
+```bash
+docker build -t hifadhi . && docker run -p 8000:8000 -e DJANGO_SECRET_KEY=change-me -e SEED_SAMPLE_DATA=1 -v hifadhi-data:/app/data hifadhi
 ```
 
 ## Project layout
@@ -258,7 +289,8 @@ backend/
     conflict.py      per-field LWW rules (pure functions)
     validation.py    checks every incoming operation
     services.py      apply_operation (exactly once), change feed
-    views.py         /health, /api/sync, /api/records, /api/ops
+    views.py         /healthz, /api/sync, /api/records, /api/ops
+    middleware.py    answers health probes before host checks and redirects
     tests/           pytest suites
 frontend/
   src/lib/           idb.js · queue.js (FIFO) · store.js (record map) · merge.js · sync.js (engine)
@@ -268,6 +300,8 @@ frontend/
   e2e/               real-browser end-to-end test
 sample_data/         clinic and aid-point stock list
 docs/                evidence, demo script, submission notes
+scripts/hosted_check.py  functional + restart-persistence check against a live URL
+backend/start.sh     container start: migrate, optional seed, exec gunicorn
 Dockerfile           Node build stage + Python runtime
 ```
 
@@ -278,12 +312,13 @@ Dockerfile           Node build stage + Python runtime
 - **Text fields don't merge character by character.** Two concurrent edits to the same notes field keep one whole value (the other is shown in the conflict log).
 - **Deletes win** over concurrent edits to other fields of the same item. An item can't be restored from the UI.
 - **The very first visit needs a connection** to download the app. After that it opens offline.
-- **SQLite** is fine for one clinic or a demo. For many sites at once, set `DATABASE_URL` to Postgres.
+- **SQLite on a persistent disk** is fine for one clinic or a demo. For many sites at once, use managed PostgreSQL through `DATABASE_URL`.
+- **Trial hosting sleeps after 15 minutes idle**, so the first request after a nap is slow. The app itself keeps working offline in the meantime, and changes sync once the server wakes.
 - **The demo failure button** (`X-Simulate-Failure` header) is on by default for judging. Set `FAULT_INJECTION_ENABLED=0` in a real deployment.
 
 ## Tech stack
 
-React 19 · Vite 8 · Tailwind CSS 4 · IndexedDB · Service Worker · Django 5.2 · Django REST Framework 3.18 · SQLite or Postgres · gunicorn · WhiteNoise · Docker · pytest · Vitest · fake-indexeddb · Playwright (core)
+React 19 · Vite 8 · Tailwind CSS 4 · IndexedDB · Service Worker · Django 5.2 · Django REST Framework 3.18 · PostgreSQL (psycopg 3) or SQLite on a persistent disk · gunicorn · WhiteNoise · Docker · pytest · Vitest · fake-indexeddb · Playwright (core)
 
 ## Third-party licences
 
@@ -292,6 +327,7 @@ React 19 · Vite 8 · Tailwind CSS 4 · IndexedDB · Service Worker · Django 5.
 | Django, Django REST Framework | BSD-3-Clause |
 | React, Vite, Tailwind CSS, Vitest, fake-indexeddb, WhiteNoise, dj-database-url | MIT |
 | gunicorn | MIT |
+| psycopg 3 | LGPL-3.0 (used unmodified as a library) |
 | Playwright | Apache-2.0 |
 | Inter typeface (`@fontsource-variable/inter`) | SIL Open Font License 1.1 |
 | Icons (iOS outline set) | [Icons8](https://icons8.com) licence. Free use requires the link attribution, shown in the app footer. |
