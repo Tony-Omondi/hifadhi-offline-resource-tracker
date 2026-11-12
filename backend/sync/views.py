@@ -28,6 +28,12 @@ def health(request):
 
 
 def index(request):
-    """Serve the offline web app shell (frontend/index.html)."""
-    index_file = settings.STATICFILES_DIRS[0] / "index.html"
+    """Serve the React app shell built by Vite (frontend/dist/index.html)."""
+    index_file = settings.FRONTEND_DIST / "index.html"
+    if not index_file.exists():
+        return HttpResponse(
+            "Frontend not built. Run `npm run build` in frontend/, or use `npm run dev` on :5173.",
+            content_type="text/plain",
+            status=503,
+        )
     return HttpResponse(index_file.read_text(encoding="utf-8"), content_type="text/html")

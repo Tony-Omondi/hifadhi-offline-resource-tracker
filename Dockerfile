@@ -1,4 +1,14 @@
-# Offline-First Resource Tracker: one container serves the sync API, /health and the web app.
+# Offline-First Resource Tracker: one container serves the sync API, /health and the React app.
+
+# --- Stage 1: build the React app ---
+FROM node:22-alpine AS frontend
+WORKDIR /app/frontend
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+COPY frontend ./
+RUN npm run build
+
+# --- Stage 2: Django runtime ---
 FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -10,7 +20,7 @@ COPY backend/requirements.txt backend/requirements.txt
 RUN pip install --no-cache-dir -r backend/requirements.txt
 
 COPY backend backend
-COPY frontend frontend
+COPY --from=frontend /app/frontend/dist frontend/dist
 
 WORKDIR /app/backend
 # collectstatic needs a key at build time only; the real one comes from the environment at runtime.

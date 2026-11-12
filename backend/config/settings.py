@@ -67,10 +67,11 @@ LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_TZ = True
 
-# The browser app lives in /frontend and is served by Django (same origin, no CORS).
+# The React app is built by Vite into frontend/dist and served by Django (same origin, no CORS).
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_DIRS = [REPO_DIR / "frontend"]
+FRONTEND_DIST = REPO_DIR / "frontend" / "dist"
+STATICFILES_DIRS = [FRONTEND_DIST] if FRONTEND_DIST.exists() else []
 
 REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"],
