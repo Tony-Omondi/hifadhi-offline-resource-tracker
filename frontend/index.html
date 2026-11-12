@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Offline Resource Tracker</title>
+</head>
+<body>
+  <h1>Offline Resource Tracker</h1>
+  <p>Skeleton is up. Backend health: <span id="health">checking…</span></p>
+  <script>
+    fetch('/health').then(r => r.json())
+      .then(b => { document.getElementById('health').textContent = b.status; })
+      .catch(() => { document.getElementById('health').textContent = 'offline'; });
+  </script>
+</body>
+</html>
