@@ -251,7 +251,7 @@ The repository builds into one Docker image. A Node stage builds the React app, 
 | `DJANGO_CSRF_TRUSTED_ORIGINS` | no | the same host with `https://` |
 | `DJANGO_SECURE_SSL_REDIRECT` | no | `1` (health checks are exempt) |
 | `SEED_SAMPLE_DATA` | no | `1` loads the 16 sample items. It's safe to leave on, because reloading is deduplicated by op ID. |
-| `WEB_CONCURRENCY` | no | `2` gunicorn workers (default) |
+| `WEB_CONCURRENCY` | no | `2` uvicorn workers (default) |
 | `FAULT_INJECTION_ENABLED` | no | `1` (default) keeps the "drop the reply" demo button working during judging |
 
 The health check is answered before Django's host check, so the platform's probe works even when it calls the container by an internal address. Every other route still enforces `DJANGO_ALLOWED_HOSTS`.
@@ -302,7 +302,7 @@ frontend/
 sample_data/         clinic and aid-point stock list
 docs/                evidence, demo script, submission notes
 scripts/hosted_check.py  functional + restart-persistence check against a live URL
-backend/start.sh     container start: migrate, optional seed, exec gunicorn
+backend/start.sh     container start: migrate, optional seed, exec uvicorn
 Dockerfile           Node build stage + Python runtime
 ```
 
