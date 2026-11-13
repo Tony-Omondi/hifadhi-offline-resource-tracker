@@ -10,6 +10,8 @@ branch: main
 envVars:
   SEED_SAMPLE_DATA: "1"
   DJANGO_SECURE_SSL_REDIRECT: "1"
+  DJANGO_ALLOWED_HOSTS: hifadhi-offline-resource-tracker.primecloud.cloud
+  DJANGO_CSRF_TRUSTED_ORIGINS: https://hifadhi-offline-resource-tracker.primecloud.cloud
 secrets:
   - DJANGO_SECRET_KEY
 # Challenge B needs durable storage: SQLite lives here and survives restarts and redeploys.

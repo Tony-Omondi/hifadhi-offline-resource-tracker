@@ -27,8 +27,10 @@ if not SECRET_KEY:
 
 # The platform's readiness probe calls the container on 127.0.0.1, so loopback names are
 # always allowed on top of the public hostname(s) set in DJANGO_ALLOWED_HOSTS.
-ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "") + ["localhost", "127.0.0.1", "[::1]"]
-CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
+# Default public host = the PrimeCloud URL this app is deployed at; override with the env var.
+PUBLIC_HOST = "hifadhi-offline-resource-tracker.primecloud.cloud"
+ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", PUBLIC_HOST) + ["localhost", "127.0.0.1", "[::1]"]
+CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS", f"https://{PUBLIC_HOST}")
 
 INSTALLED_APPS = [
     "django.contrib.contenttypes",
