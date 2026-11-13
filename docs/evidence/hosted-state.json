@@ -1,0 +1,102 @@
+{
+  "base": "https://hifadhi-offline-resource-tracker.primecloud.cloud",
+  "keep": "b4712374-ea12-4aa8-a837-3d3699c407ed",
+  "gone": "74b4f821-84c4-4123-b461-1f80d1c05fbd",
+  "quantity": 80,
+  "location": "Shelf 4",
+  "ops": [
+    {
+      "op_id": "de1a0448-1182-4429-8d85-d3d2f6bea5ca",
+      "type": "create",
+      "record_id": "b4712374-ea12-4aa8-a837-3d3699c407ed",
+      "base_version": 0,
+      "ts": 1794555031067,
+      "device_id": "hosted-check-a",
+      "data": {
+        "name": "HOSTED-CHECK ORS 20261113-073029",
+        "category": "medicine",
+        "unit": "sachets",
+        "quantity": 100
+      }
+    },
+    {
+      "op_id": "c6b3828d-33c2-4ebb-becd-4f3dc6f7240a",
+      "type": "adjust",
+      "record_id": "b4712374-ea12-4aa8-a837-3d3699c407ed",
+      "base_version": 0,
+      "ts": 1794555031067,
+      "device_id": "hosted-check-a",
+      "data": {
+        "delta": -30,
+        "reason": "dispensed"
+      }
+    },
+    {
+      "op_id": "eefccbb9-c646-477c-b34c-a834bb3fac42",
+      "type": "adjust",
+      "record_id": "b4712374-ea12-4aa8-a837-3d3699c407ed",
+      "base_version": 0,
+      "ts": 1794555031067,
+      "device_id": "hosted-check-a",
+      "data": {
+        "delta": 12,
+        "reason": "received"
+      }
+    },
+    {
+      "op_id": "e8427b9a-50ec-4084-864e-e87ee8671d9b",
+      "type": "create",
+      "record_id": "74b4f821-84c4-4123-b461-1f80d1c05fbd",
+      "base_version": 0,
+      "ts": 1794555031067,
+      "device_id": "hosted-check-a",
+      "data": {
+        "name": "HOSTED-CHECK to delete 20261113-073029",
+        "quantity": 1
+      }
+    },
+    {
+      "op_id": "ae09a1e3-5165-4970-b273-73f82ae41850",
+      "type": "adjust",
+      "record_id": "b4712374-ea12-4aa8-a837-3d3699c407ed",
+      "base_version": 0,
+      "ts": 1794555033427,
+      "device_id": "hosted-check-a",
+      "data": {
+        "delta": -2,
+        "reason": "dispensed"
+      }
+    },
+    {
+      "op_id": "64859aac-8cb3-447a-b68f-bcceee715120",
+      "type": "update",
+      "record_id": "b4712374-ea12-4aa8-a837-3d3699c407ed",
+      "base_version": 4,
+      "ts": 1794555036297,
+      "device_id": "hosted-check-a",
+      "data": {
+        "location": "Cold room"
+      }
+    },
+    {
+      "op_id": "1ffdff7c-20ba-4f1c-9b73-d63f322602dc",
+      "type": "update",
+      "record_id": "b4712374-ea12-4aa8-a837-3d3699c407ed",
+      "base_version": 4,
+      "ts": 1794555036347,
+      "device_id": "hosted-check-b",
+      "data": {
+        "location": "Shelf 4"
+      }
+    },
+    {
+      "op_id": "44d2c15e-cbda-4515-a0b3-7d6ff58584e8",
+      "type": "delete",
+      "record_id": "74b4f821-84c4-4123-b461-1f80d1c05fbd",
+      "base_version": 1,
+      "ts": 1794555037369,
+      "device_id": "hosted-check-a",
+      "data": {}
+    }
+  ]
+}

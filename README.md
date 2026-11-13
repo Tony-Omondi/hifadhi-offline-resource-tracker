@@ -7,8 +7,9 @@
 
 | | |
 |---|---|
-| Live app | `https://<your-primecloud-url>/` *(fill in after deploy)* |
-| Health check | `https://<your-primecloud-url>/healthz` |
+| Live app | https://hifadhi-offline-resource-tracker.primecloud.cloud |
+| Health check | https://hifadhi-offline-resource-tracker.primecloud.cloud/healthz |
+| Hosted evidence | 10/10 live API checks ([report](docs/evidence/hosted-check-primecloud.md)) · 7/7 live browser offline checks ([log + screenshots](docs/evidence/live/)) |
 | Source | https://github.com/Tony-Omondi/hifadhi-offline-resource-tracker |
 | Tests | 34 backend (pytest) · 21 frontend (Vitest) · 7 end-to-end browser checks · 14 hosted checks (`scripts/hosted_check.py`) |
 
@@ -308,6 +309,7 @@ Dockerfile           Node build stage + Python runtime
 
 ## Known limitations
 
+- **The live deployment uses SQLite on a PrimeCloud persistent disk, not the managed PostgreSQL.** A PostgreSQL 16 instance was provisioned, but the app container couldn't resolve its internal host (`hifadhi-db.internal.primecloud`), and the Vault binding failed with "secret not found". Both were reported to PrimeCloud. The code supports PostgreSQL through `DATABASE_URL`, tested against Postgres 16 locally (see `docs/evidence/hosted-check-postgres*.md`).
 - **No login or multi-site separation.** Every device sees the same stock list. A real rollout needs accounts and one list per facility.
 - **Last-writer-wins uses device clocks** for truly concurrent edits. Causal edits ignore clocks, and clocks far in the future are capped, but two devices with clocks a few minutes apart could still pick the "wrong" winner for a simultaneous edit. A hybrid logical clock would fix this.
 - **Text fields don't merge character by character.** Two concurrent edits to the same notes field keep one whole value (the other is shown in the conflict log).

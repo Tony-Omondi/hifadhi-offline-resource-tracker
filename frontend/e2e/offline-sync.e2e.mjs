@@ -11,7 +11,7 @@ import { mkdirSync } from 'node:fs'
 
 const APP_URL = process.env.APP_URL ?? 'http://localhost:8077'
 const CHROME_PATH = process.env.CHROME_PATH
-const OUT = new URL('../../docs/evidence/', import.meta.url).pathname
+const OUT = process.env.OUT_DIR ?? new URL('../../docs/evidence/', import.meta.url).pathname
 mkdirSync(OUT, { recursive: true })
 const stamp = Date.now().toString(36)
 const log = (msg) => console.log(`  ✓ ${msg}`)

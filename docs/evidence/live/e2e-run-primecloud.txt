@@ -1,0 +1,14 @@
+
+> offline-resource-tracker-frontend@1.0.0 test:e2e
+> node e2e/offline-sync.e2e.mjs
+
+E2E against https://hifadhi-offline-resource-tracker.primecloud.cloud
+  ✓ device A loaded the app and the service worker controls the page
+  ✓ offline: created an item and dispensed 3 times -> 4 ops queued, nothing sent
+  ✓ offline reload: app shell served by the service worker, data and queue still there
+  ✓ back online: queue drained in order, server has the new item and paracetamol -3
+  ✓ conflict: A and B edited Bar Soap location offline; later edit (B) won on server and on both devices; A shows the conflict
+  ✓ dropped reply: server applied +1, client still holds the op
+  ✓ retry: server answered "duplicate", quantity still +1 (not +2)
+
+All end-to-end checks passed. Screenshots in docs/evidence/

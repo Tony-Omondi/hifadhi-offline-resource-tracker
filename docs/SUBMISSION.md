@@ -9,11 +9,11 @@ Software Development track · Challenge B: Offline-First Resource Tracker (Inter
 | Item | Link |
 |---|---|
 | GitHub repository | https://github.com/Tony-Omondi/hifadhi-offline-resource-tracker |
-| Live demo (HTTPS) | **TODO** |
-| Health check | **TODO**`/healthz` |
-| Deployed commit | **TODO** (short hash shown in PrimeCloud's deployment details) |
+| Live demo (HTTPS) | https://hifadhi-offline-resource-tracker.primecloud.cloud |
+| Health check | https://hifadhi-offline-resource-tracker.primecloud.cloud/healthz |
+| Deployed commit | latest `main` (auto-deploy on push). **TODO:** copy the short hash from PrimeCloud → Deployments at submission time. |
 | Demo video (2–3 min) | **TODO** (script: [DEMO_SCRIPT.md](DEMO_SCRIPT.md)) |
-| Test and deploy evidence | [docs/evidence/](evidence/), plus after deploy (**TODO**): a PrimeCloud status screenshot with secrets hidden, `docs/evidence/hosted-check.md` and `hosted-check-after-restart.md` from `scripts/hosted_check.py` |
+| Test and deploy evidence | Live: [hosted-check-primecloud.md](evidence/hosted-check-primecloud.md) (10/10), [after redeploy](evidence/hosted-check-primecloud-after-redeploy.md), [browser offline run + screenshots](evidence/live/) (7/7). Local: backend/frontend test logs, Postgres runs. **TODO:** add a PrimeCloud "You're live" screenshot with no secrets showing. |
 
 ## Team
 
