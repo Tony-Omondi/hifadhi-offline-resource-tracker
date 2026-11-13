@@ -29,7 +29,7 @@ RUN DJANGO_SECRET_KEY=build-only python manage.py collectstatic --noinput
 
 # /app/data is where a persistent disk mounts when no managed database is used.
 RUN useradd --create-home appuser && mkdir -p /app/data && chown -R appuser /app && chmod 775 /app/data && chmod 755 /app/backend/start.sh
-USER appuser
+# No USER line: start.sh fixes ownership of the mounted disk, then drops to appuser.
 ENV SQLITE_PATH=/app/data/db.sqlite3
 
 EXPOSE 8000

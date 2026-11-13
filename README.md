@@ -238,7 +238,7 @@ The repository builds into one Docker image. A Node stage builds the React app, 
 2. Set the Target Port to match `$PORT`, and the health check path to `/healthz`.
 3. **Give it storage that survives redeploys** (required for Challenge B; confirm with the Technical Lead which one your team is allocated):
    - **Managed PostgreSQL (preferred):** bind it with Vault so the URL is never in plain text. For example, `primecloud app bind --app <your-app> --db <your-db> --env DATABASE_URL`. The app reads `DATABASE_URL`, and `psycopg` is already installed.
-   - **Persistent disk:** mount it at `/app/data`. With no `DATABASE_URL`, the app keeps SQLite at `/app/data/db.sqlite3`, and `start.sh` refuses to start if that folder isn't writable.
+   - **Persistent disk (what the live deployment uses):** declared in [`primecloud.yaml`](primecloud.yaml) (`disks: data → /app/data, 1 GB`), following PrimeCloud's blueprint spec. With no `DATABASE_URL`, the app keeps SQLite at `/app/data/db.sqlite3`. `start.sh` takes ownership of the freshly mounted disk, drops to a non-root user, and refuses to start if the folder isn't writable.
 4. Set the environment variables below, then deploy and watch the build and runtime logs until the app reports healthy.
 5. Run the hosted checks (next section). Restart or redeploy, then run the after-restart check.
 

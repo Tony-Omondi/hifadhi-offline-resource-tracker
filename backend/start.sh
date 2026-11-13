@@ -2,11 +2,26 @@
 # Container start command (PrimeCloud runs this as the long-lived HTTP process).
 set -e
 
+# The container starts as root only so it can take ownership of a freshly mounted
+# persistent disk (host folders are usually root-owned), then drops to "appuser".
+# If the platform has dropped the needed capabilities, it keeps running as is.
+DB_DIR=$(dirname "${SQLITE_PATH:-/app/data/db.sqlite3}")
+RUN_AS=""
+if [ "$(id -u)" = "0" ]; then
+  mkdir -p "$DB_DIR" 2>/dev/null || true
+  if chown -R appuser:appuser "$DB_DIR" 2>/dev/null \
+     && setpriv --reuid=appuser --regid=appuser --init-groups true 2>/dev/null; then
+    RUN_AS="setpriv --reuid=appuser --regid=appuser --init-groups"
+    echo "Running as appuser; $DB_DIR owned by appuser"
+  else
+    echo "Could not drop privileges here; continuing as the platform's user"
+  fi
+fi
+
 if [ -z "$DATABASE_URL" ]; then
   # No managed database: SQLite must live on the PERSISTENT disk, not in the container.
-  DB_DIR=$(dirname "${SQLITE_PATH:-/app/data/db.sqlite3}")
   mkdir -p "$DB_DIR" 2>/dev/null || true
-  if ! touch "$DB_DIR/.write-test" 2>/dev/null; then
+  if ! $RUN_AS touch "$DB_DIR/.write-test" 2>/dev/null; then
     echo "FATAL: $DB_DIR is not writable. Mount the persistent disk there or set DATABASE_URL." >&2
     exit 1
   fi
@@ -15,7 +30,7 @@ if [ -z "$DATABASE_URL" ]; then
 else
   echo "Database: DATABASE_URL (managed database)"
   # Internal DNS and the database can lag behind container start: wait up to ~30 s.
-  python - <<'PY'
+  $RUN_AS python - <<'PY'
 import os, sys, time
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 import django
@@ -35,17 +50,17 @@ sys.exit(1)
 PY
 fi
 
-python manage.py migrate --noinput
+$RUN_AS python manage.py migrate --noinput
 
 # Loading the sample data is idempotent (fixed op IDs), so it is safe on every start.
 if [ "${SEED_SAMPLE_DATA:-0}" = "1" ]; then
-  python manage.py seed_sample_data
+  $RUN_AS python manage.py seed_sample_data
 fi
 
 # exec: gunicorn becomes PID 1 and receives SIGTERM directly. It stops accepting new
 # requests and lets in-flight syncs finish; each op commits in its own transaction
 # before it is acknowledged, so a forced kill never acknowledges unapplied work.
-exec gunicorn config.wsgi:application \
+exec $RUN_AS gunicorn config.wsgi:application \
   --bind "0.0.0.0:${PORT:-8000}" \
   --workers "${WEB_CONCURRENCY:-2}" \
   --timeout 30 \

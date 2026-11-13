@@ -1,0 +1,19 @@
+# PrimeCloud blueprint (https://primecloud.cloud/docs/configuration, section 05).
+# Build and start come from the root Dockerfile, so no runtime/build/start commands here.
+version: 1
+name: hifadhi-offline-resource-tracker
+type: web
+port: 8000
+healthCheckPath: /healthz
+autoDeploy: true
+branch: main
+envVars:
+  SEED_SAMPLE_DATA: "1"
+  DJANGO_SECURE_SSL_REDIRECT: "1"
+secrets:
+  - DJANGO_SECRET_KEY
+# Challenge B needs durable storage: SQLite lives here and survives restarts and redeploys.
+disks:
+  - name: data
+    mountPath: /app/data
+    sizeGB: 1
