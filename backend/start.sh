@@ -57,13 +57,15 @@ if [ "${SEED_SAMPLE_DATA:-0}" = "1" ]; then
   $RUN_AS python manage.py seed_sample_data
 fi
 
-# exec: gunicorn becomes PID 1 and receives SIGTERM directly. It stops accepting new
+# exec: uvicorn becomes PID 1 and receives SIGTERM directly. It stops accepting new
 # requests and lets in-flight syncs finish; each op commits in its own transaction
 # before it is acknowledged, so a forced kill never acknowledges unapplied work.
-exec $RUN_AS gunicorn config.wsgi:application \
-  --bind "0.0.0.0:${PORT:-8000}" \
+# h11 parser: accepts the platform probe's bare-LF requests (gunicorn rejects them).
+exec $RUN_AS uvicorn config.asgi:application \
+  --host 0.0.0.0 \
+  --port "${PORT:-8000}" \
   --workers "${WEB_CONCURRENCY:-2}" \
-  --timeout 30 \
-  --graceful-timeout 8 \
-  --max-requests 1000 --max-requests-jitter 100 \
-  --access-logfile - --error-logfile -
+  --http h11 \
+  --proxy-headers --forwarded-allow-ips "*" \
+  --timeout-graceful-shutdown 8 \
+  --no-server-header

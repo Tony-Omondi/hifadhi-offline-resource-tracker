@@ -35,3 +35,13 @@ def test_health_probe_with_an_internal_host_header_is_not_rejected(client, setti
 def test_health_probe_is_not_redirected_to_https(client, settings):
     settings.SECURE_SSL_REDIRECT = True
     assert client.get("/healthz").status_code == 200
+
+
+@pytest.mark.django_db
+def test_platform_probe_on_root_is_answered_when_a_public_host_is_configured(client, settings):
+    from django.conf import settings as live
+
+    settings.ALLOWED_HOSTS = ["hifadhi.example"] + [h for h in live.ALLOWED_HOSTS if h in ("localhost", "127.0.0.1", "[::1]")]
+    settings.SECURE_SSL_REDIRECT = True
+    assert client.get("/", HTTP_HOST="127.0.0.1:33224").status_code == 200
+    assert client.get("/api/records", HTTP_HOST="evil.example").status_code == 400

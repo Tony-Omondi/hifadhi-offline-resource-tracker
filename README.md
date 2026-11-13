@@ -220,17 +220,18 @@ The seed goes through the normal sync path with fixed op IDs, so running it twic
 
 ## Deploying to PrimeCloud
 
-The repository builds into one Docker image. A Node stage builds the React app, and the runtime is Python 3.12 + gunicorn. The same container serves the web app, the sync API and the health check, so there is one HTTPS URL to submit.
+The repository builds into one Docker image. A Node stage builds the React app, and the runtime is Python 3.12 + uvicorn. The same container serves the web app, the sync API and the health check, so there is one HTTPS URL to submit.
 
 | Setting | Value |
 |---|---|
 | Repository / branch | `Tony-Omondi/hifadhi-offline-resource-tracker` · `main` · application directory `/` (root) |
 | Build | Detected from the root `Dockerfile` (no separate build command) |
-| Start command | `sh /app/backend/start.sh` (the image's default: runs migrations, optionally loads sample data, then `exec gunicorn`). Leave the Console's start command empty. |
+| Start command | `sh /app/backend/start.sh` (the image's default: runs migrations, optionally loads sample data, then `exec uvicorn`). Leave the Console's start command empty. |
 | Listen address / port | `0.0.0.0:$PORT` (read from the `PORT` variable; 8000 if unset). Set the Target Port to the same value. |
 | Health check path | `/healthz` (also `/health`). Returns 200 in milliseconds, or 503 if the database is unreachable. No secrets in the reply. |
-| Shutdown | gunicorn is PID 1, receives SIGTERM and stops within 8 s (PrimeCloud allows 10 s). An op is acknowledged only after its transaction commits. |
-| Memory | About 105 MiB with 2 workers, measured. Fits the 512 MiB trial. |
+| Shutdown | uvicorn is PID 1, receives SIGTERM and stops within 8 s (PrimeCloud allows 10 s). An op is acknowledged only after its transaction commits. |
+| Readiness probe | PrimeCloud probes `/` on `127.0.0.1` with bare-LF line endings. uvicorn's h11 parser accepts that (gunicorn rejects it), loopback hosts are always allowed, and `/` isn't redirected to HTTPS inside the platform. |
+| Memory | About 120 MiB with 2 workers, measured. Fits the 512 MiB trial. |
 
 ### Steps (Console route)
 
@@ -318,7 +319,7 @@ Dockerfile           Node build stage + Python runtime
 
 ## Tech stack
 
-React 19 · Vite 8 · Tailwind CSS 4 · IndexedDB · Service Worker · Django 5.2 · Django REST Framework 3.18 · PostgreSQL (psycopg 3) or SQLite on a persistent disk · gunicorn · WhiteNoise · Docker · pytest · Vitest · fake-indexeddb · Playwright (core)
+React 19 · Vite 8 · Tailwind CSS 4 · IndexedDB · Service Worker · Django 5.2 · Django REST Framework 3.18 · PostgreSQL (psycopg 3) or SQLite on a persistent disk · uvicorn · WhiteNoise · Docker · pytest · Vitest · fake-indexeddb · Playwright (core)
 
 ## Third-party licences
 
@@ -326,7 +327,7 @@ React 19 · Vite 8 · Tailwind CSS 4 · IndexedDB · Service Worker · Django 5.
 |---|---|
 | Django, Django REST Framework | BSD-3-Clause |
 | React, Vite, Tailwind CSS, Vitest, fake-indexeddb, WhiteNoise, dj-database-url | MIT |
-| gunicorn | MIT |
+| uvicorn, h11 | BSD-3-Clause, MIT |
 | psycopg 3 | LGPL-3.0 (used unmodified as a library) |
 | Playwright | Apache-2.0 |
 | Inter typeface (`@fontsource-variable/inter`) | SIL Open Font License 1.1 |

@@ -25,7 +25,9 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "dev-only-insecure-key" if DEBU
 if not SECRET_KEY:
     raise RuntimeError("DJANGO_SECRET_KEY must be set when DJANGO_DEBUG is off")
 
-ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
+# The platform's readiness probe calls the container on 127.0.0.1, so loopback names are
+# always allowed on top of the public hostname(s) set in DJANGO_ALLOWED_HOSTS.
+ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "") + ["localhost", "127.0.0.1", "[::1]"]
 CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
 
 INSTALLED_APPS = [
@@ -87,7 +89,7 @@ REST_FRAMEWORK = {
 # Behind PrimeCloud's HTTPS proxy.
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = env_bool("DJANGO_SECURE_SSL_REDIRECT", False)
-SECURE_REDIRECT_EXEMPT = [r"^healthz?/?$"]  # platform health probes often use plain HTTP
+SECURE_REDIRECT_EXEMPT = [r"^$", r"^healthz?/?$"]  # probes use plain HTTP inside the platform; the edge serves HTTPS
 
 APP_VERSION = os.environ.get("APP_VERSION", "1.0.0")
 
